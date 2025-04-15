@@ -1,0 +1,57 @@
+{
+  "name": "mcp-shield",
+  "version": "1.0.0",
+  "description": "Security scanner for MCP servers",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-shield": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.18.0",
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.4.1",
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5",
+    "json5": "^2.2.3",
+    "log-symbols": "^7.0.0",
+    "log-update": "^6.1.0",
+    "node-fetch": "^3.3.2",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/json5": "^0.0.30",
+    "@types/node": "^20.11.24",
+    "@types/node-fetch": "^2.6.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "author": "Nikita",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riseandignite/mcp-shield.git"
+  },
+  "homepage": "https://github.com/riseandignite/mcp-shield#readme",
+  "keywords": [
+    "mcp",
+    "model context protocol",
+    "security",
+    "scanner",
+    "cli",
+    "anthropic",
+    "claude",
+    "ai"
+  ]
+}
