@@ -39,6 +39,14 @@ function detectPatterns(
   }
 }
 
+const POPULAR_MCP_SERVERS = [
+  'whatsapp',
+  'slack',
+  'github',
+  'gitlab',
+  'gdrive',
+]
+
 export function detectHiddenInstructions(toolDescription?: string) {
   const patterns: Pattern[] = [
     // Concealment directives
@@ -219,13 +227,17 @@ export function detectCrossOriginViolations(
   toolDescription?: string,
   otherServerNames?: string[]
 ) {
-  if (!toolDescription || !otherServerNames?.length) {
+  if (!toolDescription) {
     return {detected: false, matches: []}
   }
 
+  const combinedServerNames = [
+    ...new Set([...(otherServerNames || []), ...POPULAR_MCP_SERVERS]),
+  ]
+
   const matches = []
   const tokens = toolDescription.toLowerCase().split(/\s+/)
-  const flaggedNames = otherServerNames.map((name) =>
+  const flaggedNames = combinedServerNames.map((name) =>
     name.toLowerCase()
   )
 
@@ -251,7 +263,7 @@ export function detectCrossOriginViolations(
           pattern: regex.toString().replace(/^\/|\/i$/g, ''),
           match: match[0],
           context: '...' + context + '...',
-          referencedServer: otherServerNames.find(
+          referencedServer: combinedServerNames.find(
             (name) => name.toLowerCase() === token
           ),
         })
