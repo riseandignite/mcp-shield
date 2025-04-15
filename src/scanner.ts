@@ -206,7 +206,8 @@ export async function scanMcpServer(
 
         const crossOriginResult = detectCrossOriginViolations(
           tool.description,
-          otherServerNames
+          otherServerNames,
+          serverName
         )
 
         if (crossOriginResult.detected) {

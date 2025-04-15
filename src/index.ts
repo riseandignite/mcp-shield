@@ -189,88 +189,103 @@ function displayVulnerabilities(
   )
 
   results.vulnerabilities.forEach((vuln, index) => {
-    console.log(`${index + 1}. Server: ${chalk.bold(vuln.server)}`)
-
-    if (vuln.tool) {
-      console.log(`   Tool: ${chalk.bold(vuln.tool)}`)
-    }
-
-    console.log(`   Risk Level: ${getRiskLevel(vuln.severity)}`)
-
-    if (vuln.claudeAnalysis?.overallRisk) {
+    // Check if this is a cross-reference specific vulnerability
+    if (vuln.crossRefMatches?.length && !vuln.tool) {
+      // For pure cross-ref issues, display differently
       console.log(
-        `   AI Risk Level: ${getRiskLevel(
-          vuln.claudeAnalysis.overallRisk
+        `${index + 1}. ${chalk.yellow(
+          'Cross-Origin Reference Detected'
         )}`
       )
-    }
-
-    console.log('   Issues:')
-
-    // Display details if available
-    if (vuln.detectionDetails) {
-      const details = vuln.detectionDetails
-
-      if (details.hiddenInstructions?.length > 0) {
-        details.hiddenInstructions.forEach((match: any) => {
-          console.log(
-            `     – Hidden instructions: ${chalk.gray(
-              match.match.replace(/\n/g, '\n       ')
-            )}`
-          )
-        })
-      }
-
-      if (details.shadowing?.length > 0) {
-        details.shadowing.forEach((match: any) => {
-          console.log(
-            `     – Shadowing detected: ${chalk.gray(
-              match.match.replace(/\n/g, '\n       ')
-            )}`
-          )
-        })
-      }
-
-      if (details.sensitiveFileAccess?.length > 0) {
-        details.sensitiveFileAccess.forEach((match: any) => {
-          console.log(
-            `     – Sensitive file access: ${chalk.gray(
-              match.match.replace(/\n/g, '\n       ')
-            )}`
-          )
-        })
-      }
-
-      if (details.exfiltrationChannels?.length > 0) {
-        details.exfiltrationChannels.forEach((match: any) => {
-          console.log(
-            `     – Potential exfiltration: ${chalk.gray(
-              `${match.param} (${match.paramType})`
-            )}`
-          )
-        })
-      }
-    }
-
-    // Display cross-reference matches if available
-    if (vuln.crossRefMatches?.length) {
+      console.log(
+        `   Risk Level: ${getRiskLevel(
+          vuln.severity
+        )} (Across Servers: ${chalk.bold(vuln.server)})`
+      )
+      console.log('   Details:')
       vuln.crossRefMatches.forEach((match) => {
         console.log(
-          `     – Cross-reference: ${chalk.gray(
-            `${match.tool} references "${match.referencedName}" in context: "${match.context}"`
-          )}`
+          `     – Server ${chalk.bold(
+            match.server
+          )}, Tool ${chalk.bold(match.tool)} references "${chalk.bold(
+            match.referencedName
+          )}": ${chalk.gray(match.context)}`
         )
       })
-    }
+    } else {
+      // Normal vulnerability display
+      console.log(`${index + 1}. Server: ${chalk.bold(vuln.server)}`)
 
-    if (vuln.claudeAnalysis) {
-      console.log('\n   AI Analysis:')
-      console.log(
-        `     ${vuln.claudeAnalysis.analysis.replace(
-          /\n/g,
-          '\n     '
-        )}`
-      )
+      if (vuln.tool) {
+        console.log(`   Tool: ${chalk.bold(vuln.tool)}`)
+      }
+
+      console.log(`   Risk Level: ${getRiskLevel(vuln.severity)}`)
+
+      if (vuln.claudeAnalysis?.overallRisk) {
+        console.log(
+          `   AI Risk Level: ${getRiskLevel(
+            vuln.claudeAnalysis.overallRisk
+          )}`
+        )
+      }
+
+      console.log('   Issues:')
+
+      // Display details if available
+      if (vuln.detectionDetails) {
+        const details = vuln.detectionDetails
+
+        if (details.hiddenInstructions?.length > 0) {
+          details.hiddenInstructions.forEach((match: any) => {
+            console.log(
+              `     – Hidden instructions: ${chalk.gray(
+                match.match.replace(/\n/g, '\n       ')
+              )}`
+            )
+          })
+        }
+
+        if (details.shadowing?.length > 0) {
+          details.shadowing.forEach((match: any) => {
+            console.log(
+              `     – Shadowing detected: ${chalk.gray(
+                match.match.replace(/\n/g, '\n       ')
+              )}`
+            )
+          })
+        }
+
+        if (details.sensitiveFileAccess?.length > 0) {
+          details.sensitiveFileAccess.forEach((match: any) => {
+            console.log(
+              `     – Sensitive file access: ${chalk.gray(
+                match.match.replace(/\n/g, '\n       ')
+              )}`
+            )
+          })
+        }
+
+        if (details.exfiltrationChannels?.length > 0) {
+          details.exfiltrationChannels.forEach((match: any) => {
+            console.log(
+              `     – Potential exfiltration: ${chalk.gray(
+                `${match.param} (${match.paramType})`
+              )}`
+            )
+          })
+        }
+      }
+
+      if (vuln.claudeAnalysis) {
+        console.log('\n   AI Analysis:')
+        console.log(
+          `     ${vuln.claudeAnalysis.analysis.replace(
+            /\n/g,
+            '\n     '
+          )}`
+        )
+      }
     }
 
     console.log() // Add spacing between vulnerabilities

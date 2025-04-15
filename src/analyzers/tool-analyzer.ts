@@ -224,16 +224,26 @@ export function detectSensitiveFileAccess(toolDescription?: string) {
 }
 
 export function detectCrossOriginViolations(
-  toolDescription?: string,
-  otherServerNames?: string[]
+  toolDescription: string | undefined,
+  otherServerNames: string[] | undefined,
+  currentServerName: string
 ) {
   if (!toolDescription) {
     return {detected: false, matches: []}
   }
 
+  const relevantPopularServers = POPULAR_MCP_SERVERS.filter(
+    (popularName) => popularName !== currentServerName
+  )
+
   const combinedServerNames = [
-    ...new Set([...(otherServerNames || []), ...POPULAR_MCP_SERVERS]),
+    ...(otherServerNames || []),
+    ...relevantPopularServers,
   ]
+
+  if (!combinedServerNames.length) {
+    return {detected: false, matches: []}
+  }
 
   const matches = []
   const tokens = toolDescription.toLowerCase().split(/\s+/)
@@ -242,9 +252,14 @@ export function detectCrossOriginViolations(
   )
 
   for (const token of tokens) {
-    if (flaggedNames.includes(token)) {
-      // Find where the token occurs in the description
-      const regex = new RegExp(`\\b${token}\\b`, 'i')
+    // Clean token: remove surrounding parentheses
+    let cleanedToken = token.replace(/^\((.*)\)$/, '$1')
+    // Normalize token: replace underscores with hyphens
+    cleanedToken = cleanedToken.replace(/_/g, '-')
+
+    if (flaggedNames.includes(cleanedToken)) {
+      // Find where the original token occurs in the description for context
+      const regex = new RegExp(`\\b${token}\\b`, 'i') // Use original token for regex
       const match = toolDescription.match(regex)
       if (match) {
         // Extract context around the match
@@ -264,7 +279,9 @@ export function detectCrossOriginViolations(
           match: match[0],
           context: '...' + context + '...',
           referencedServer: combinedServerNames.find(
-            (name) => name.toLowerCase() === token
+            // Match against normalized name
+            (name) =>
+              name.toLowerCase().replace(/_/g, '-') === cleanedToken
           ),
         })
       }
