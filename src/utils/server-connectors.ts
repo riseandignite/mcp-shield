@@ -3,12 +3,15 @@ import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js'
 import {SSEClientTransport} from '@modelcontextprotocol/sdk/client/sse.js'
 import {Transport} from '@modelcontextprotocol/sdk/shared/transport.js'
 
-export async function getTools(serverConfig: {
-  url?: string
-  command?: string
-  args?: string[]
-  env?: Record<string, string>
-}) {
+export async function getTools(
+  serverConfig: {
+    url?: string
+    command?: string
+    args?: string[]
+    env?: Record<string, string>
+  },
+  identifyAs?: string
+) {
   const configUrl = serverConfig.url
   const isSSE = !!configUrl
 
@@ -16,8 +19,10 @@ export async function getTools(serverConfig: {
     throw new Error('Missing command for STDIO server')
   }
 
+  const clientName = identifyAs || 'mcp-shield'
+
   const client = new Client({
-    name: 'mcp-shield',
+    name: clientName,
     version: '1.0.0',
   })
 

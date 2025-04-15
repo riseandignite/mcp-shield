@@ -20,7 +20,8 @@ import {
 export async function scanMcpServer(
   configPath: string,
   progressCallback: ScanProgressCallback,
-  claudeApiKey?: string
+  claudeApiKey?: string,
+  identifyAs?: string
 ): Promise<ScanResult> {
   const result: ScanResult = {
     serverName: path.basename(path.dirname(configPath)),
@@ -60,7 +61,7 @@ export async function scanMcpServer(
   )) {
     try {
       // Get tools from server
-      const tools = await getTools(serverConfig)
+      const tools = await getTools(serverConfig, identifyAs)
 
       serversWithTools[serverName] = tools
 

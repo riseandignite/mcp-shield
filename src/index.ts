@@ -37,7 +37,8 @@ const getRiskLevel = (severity: Severity, message?: string) => {
 // Create progress-tracking scanner display with tree view
 async function scanWithTreeDisplay(
   configPath: string,
-  claudeApiKey?: string
+  claudeApiKey?: string,
+  identifyAs?: string
 ) {
   console.log(chalk.bold(`Scanning "${configPath}"`))
 
@@ -155,7 +156,8 @@ async function scanWithTreeDisplay(
     const results = await scanMcpServer(
       configPath,
       progressCallback,
-      claudeApiKey
+      claudeApiKey,
+      identifyAs
     )
 
     // Final tree render and persist output
@@ -306,76 +308,87 @@ program
     '--claude-api-key <key>',
     'Optional Anthropic Claude API key for enhanced analysis'
   )
-  .action(async (options: {path: string; claudeApiKey?: string}) => {
-    try {
-      // Banner
+  .option(
+    '--identify-as <client-name>',
+    'Identify as a different client name (e.g., claude-desktop) for testing'
+  )
+  .action(
+    async (options: {
+      path: string
+      claudeApiKey?: string
+      identifyAs?: string
+    }) => {
+      try {
+        // Banner
 
-      // Show banner in a boxed format
-      const banner = boxen(
-        chalk.bold.blue(`MCP-Shield v${packageJson.version}`) +
-          '\n' +
-          chalk.blue(
-            'Security Scanner for Model Context Protocol Servers'
-          ),
-        {
-          padding: 1,
-          margin: 1,
-          borderStyle: 'round',
-          borderColor: 'blue',
-        }
-      )
-      console.log(banner)
-
-      const paths = options.path
-        ? [options.path]
-        : await findMcpConfigs()
-
-      if (paths.length === 0) {
-        console.log(
-          chalk.yellow(
-            `${logSymbols.warning} No MCP server configurations found.`
-          )
-        )
-        return
-      }
-
-      // Track overall vulnerabilities
-      let totalVulnerabilities = 0
-
-      const resultsArr = []
-
-      for (const configPath of paths) {
-        try {
-          // Use the tree-based scanner display
-          const results = await scanWithTreeDisplay(
-            configPath,
-            options.claudeApiKey
-          )
-
-          if (!results) {
-            continue
+        // Show banner in a boxed format
+        const banner = boxen(
+          chalk.bold.blue(`MCP-Shield v${packageJson.version}`) +
+            '\n' +
+            chalk.blue(
+              'Security Scanner for Model Context Protocol Servers'
+            ),
+          {
+            padding: 1,
+            margin: 1,
+            borderStyle: 'round',
+            borderColor: 'blue',
           }
+        )
+        console.log(banner)
 
-          totalVulnerabilities += results.vulnerabilities.length
-          resultsArr.push({configPath, results})
-        } catch (error: any) {
-          console.error(
-            chalk.red(
-              `${logSymbols.error} Error scanning ${configPath}: ${error.message}`
+        const paths = options.path
+          ? [options.path]
+          : await findMcpConfigs()
+
+        if (paths.length === 0) {
+          console.log(
+            chalk.yellow(
+              `${logSymbols.warning} No MCP server configurations found.`
             )
           )
+          return
         }
-      }
 
-      for (const {configPath, results} of resultsArr) {
-        displayVulnerabilities(results, configPath)
+        // Track overall vulnerabilities
+        let totalVulnerabilities = 0
+
+        const resultsArr = []
+
+        for (const configPath of paths) {
+          try {
+            // Use the tree-based scanner display
+            const results = await scanWithTreeDisplay(
+              configPath,
+              options.claudeApiKey,
+              options.identifyAs
+            )
+
+            if (!results) {
+              continue
+            }
+
+            totalVulnerabilities += results.vulnerabilities.length
+            resultsArr.push({configPath, results})
+          } catch (error: any) {
+            console.error(
+              chalk.red(
+                `${logSymbols.error} Error scanning ${configPath}: ${error.message}`
+              )
+            )
+          }
+        }
+
+        for (const {configPath, results} of resultsArr) {
+          displayVulnerabilities(results, configPath)
+        }
+      } catch (error: any) {
+        console.error(
+          chalk.red(`\n${logSymbols.error} Error: ${error.message}`)
+        )
+        process.exit(1)
       }
-    } catch (error: any) {
-      console.error(
-        chalk.red(`\n${logSymbols.error} Error: ${error.message}`)
-      )
-      process.exit(1)
     }
-  })
+  )
 
 program.parse()

@@ -6,15 +6,42 @@ MCP-Shield scans your installed MCP (Model Context Protocol) servers and detects
 
 ## Usage
 
+Get help:
+
+```bash
+npx mcp-shield -h
+```
+
+Run default scan:
+
 ```bash
 npx mcp-shield
+```
 
-# With Claude API key
-npx mcp-shield --claude-api-key sk-ant-api...
+With Claude API key for enhanced analysis:
 
-# With a specific config file
+```bash
+npx mcp-shield --claude-api-key YOUR_API_KEY
+```
+
+With a specific config file:
+
+```bash
 npx mcp-shield --path ~/path/to/config.json
 ```
+
+With the `--identify-as` flag:
+
+```bash
+npx mcp-shield --identify-as claude-desktop
+```
+
+**Options:**
+
+- `--path <path>`: Scan a specific path for MCP configuration files (`.mcp/*.json`, `claude_desktop_config.json`). If omitted, scans standard locations (`~/.config/.mcp`, `~/Library/Application Support/Claude`, `~/.continue`).
+- `--claude-api-key <key>`: (Optional) Provide an Anthropic Claude API key for enhanced vulnerability analysis using AI.
+- `--identify-as <client-name>`: (Optional) Identify as a different client name (e.g., `claude-desktop`) when connecting to servers. Useful for testing if servers behave differently based on the client ID (potential bait-and-switch).
+- `-h, --help`: Display help information.
 
 ## Output Example
 
