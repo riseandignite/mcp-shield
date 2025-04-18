@@ -6,12 +6,6 @@ MCP-Shield scans your installed MCP (Model Context Protocol) servers and detects
 
 ## Usage
 
-Get help:
-
-```bash
-npx mcp-shield -h
-```
-
 Run default scan:
 
 ```bash
@@ -34,6 +28,12 @@ With the `--identify-as` flag:
 
 ```bash
 npx mcp-shield --identify-as claude-desktop
+```
+
+Get help:
+
+```bash
+npx mcp-shield -h
 ```
 
 **Options:**
