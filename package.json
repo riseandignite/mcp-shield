@@ -23,6 +23,7 @@
     "chalk": "^5.4.1",
     "commander": "^12.0.0",
     "dotenv": "^16.4.5",
+    "fs-extra": "^11.3.0",
     "json5": "^2.2.3",
     "log-symbols": "^7.0.0",
     "log-update": "^6.1.0",
