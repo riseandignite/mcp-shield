@@ -38,7 +38,8 @@ const getRiskLevel = (severity: Severity, message?: string) => {
 async function scanWithTreeDisplay(
   configPath: string,
   claudeApiKey?: string,
-  identifyAs?: string
+  identifyAs?: string,
+  safeList?: string[]
 ) {
   console.log(chalk.bold(`Scanning "${configPath}"`))
 
@@ -113,6 +114,15 @@ async function scanWithTreeDisplay(
             )}`
           )
         }
+      } else if (event.type === 'server-skipped') {
+        const serverNode = serverNodes.get(event.serverName)
+        if (serverNode) {
+          serverNode.update(
+            `○ ${chalk.bold(event.serverName)} — ${chalk.blue(
+              'Skipped'
+            )} (${event.reason})`
+          )
+        }
       } else if (event.type === 'tool-scanning') {
         const toolKey = `${event.serverName}.${event.toolName}`
         const toolNode = toolNodes.get(toolKey)
@@ -157,7 +167,8 @@ async function scanWithTreeDisplay(
       configPath,
       progressCallback,
       claudeApiKey,
-      identifyAs
+      identifyAs,
+      safeList
     )
 
     // Final tree render and persist output
@@ -239,7 +250,7 @@ function displayVulnerabilities(
         const details = vuln.detectionDetails
 
         if (details.hiddenInstructions?.length > 0) {
-          details.hiddenInstructions.forEach((match: any) => {
+          details.hiddenInstructions.forEach((match) => {
             console.log(
               `     – Hidden instructions: ${chalk.gray(
                 match.match.replace(/\n/g, '\n       ')
@@ -249,7 +260,7 @@ function displayVulnerabilities(
         }
 
         if (details.shadowing?.length > 0) {
-          details.shadowing.forEach((match: any) => {
+          details.shadowing.forEach((match) => {
             console.log(
               `     – Shadowing detected: ${chalk.gray(
                 match.match.replace(/\n/g, '\n       ')
@@ -259,17 +270,17 @@ function displayVulnerabilities(
         }
 
         if (details.sensitiveFileAccess?.length > 0) {
-          details.sensitiveFileAccess.forEach((match: any) => {
+          details.sensitiveFileAccess.forEach((match) => {
             console.log(
               `     – Sensitive file access: ${chalk.gray(
                 match.match.replace(/\n/g, '\n       ')
-              )}`
+              )} (${match.type})`
             )
           })
         }
 
         if (details.exfiltrationChannels?.length > 0) {
-          details.exfiltrationChannels.forEach((match: any) => {
+          details.exfiltrationChannels.forEach((match) => {
             console.log(
               `     – Potential exfiltration: ${chalk.gray(
                 `${match.param} (${match.paramType})`
@@ -312,11 +323,16 @@ program
     '--identify-as <client-name>',
     'Identify as a different client name (e.g., claude-desktop) for testing'
   )
+  .option(
+    '--safe-list <servers>',
+    'Comma-separated list of server names to exclude from scanning'
+  )
   .action(
     async (options: {
       path: string
       claudeApiKey?: string
       identifyAs?: string
+      safeList?: string
     }) => {
       try {
         // Banner
@@ -361,7 +377,10 @@ program
             const results = await scanWithTreeDisplay(
               configPath,
               options.claudeApiKey,
-              options.identifyAs
+              options.identifyAs,
+              options.safeList
+                ? options.safeList.split(',').map((s) => s.trim())
+                : undefined
             )
 
             if (!results) {

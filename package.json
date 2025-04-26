@@ -1,6 +1,6 @@
 {
   "name": "mcp-shield",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Security scanner for MCP servers",
   "type": "module",
   "main": "dist/index.js",

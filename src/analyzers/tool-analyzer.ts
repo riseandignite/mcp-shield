@@ -226,7 +226,8 @@ export function detectSensitiveFileAccess(toolDescription?: string) {
 export function detectCrossOriginViolations(
   toolDescription: string | undefined,
   otherServerNames: string[] | undefined,
-  currentServerName: string
+  currentServerName: string,
+  safeList?: string[]
 ) {
   if (!toolDescription) {
     return {detected: false, matches: []}
@@ -237,7 +238,9 @@ export function detectCrossOriginViolations(
   )
 
   const combinedServerNames = [
-    ...(otherServerNames || []),
+    ...(otherServerNames || []).filter(
+      (name) => !safeList || !safeList.includes(name)
+    ),
     ...relevantPopularServers,
   ]
 

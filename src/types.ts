@@ -5,6 +5,7 @@ export type ScanProgressEventType =
   | 'server-connecting' // When starting to connect to a server
   | 'server-connected' // When successfully connected to a server
   | 'server-error' // When an error occurs connecting to a server
+  | 'server-skipped' // When server is skipped due to being in safe list
   | 'tool-scanning' // When starting to scan a specific tool
   | 'tool-analyzed' // When analysis of a tool is complete
   | 'cross-origin-check' // When checking for cross-references between servers
@@ -83,12 +84,22 @@ export interface CrossOriginCheckEvent extends ScanProgressEventBase {
 }
 
 /**
+ * Event emitted when server is skipped due to being in safe list
+ */
+export interface ServerSkippedEvent {
+  type: 'server-skipped'
+  serverName: string
+  reason: string
+}
+
+/**
  * Union type of all possible scan progress events
  */
 export type ScanProgressEvent =
   | ServerConnectingEvent
   | ServerConnectedEvent
   | ServerErrorEvent
+  | ServerSkippedEvent
   | ToolScanningEvent
   | ToolAnalyzedEvent
   | CrossOriginCheckEvent

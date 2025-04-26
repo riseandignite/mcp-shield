@@ -21,7 +21,8 @@ export async function scanMcpServer(
   configPath: string,
   progressCallback: ScanProgressCallback,
   claudeApiKey?: string,
-  identifyAs?: string
+  identifyAs?: string,
+  safeList?: string[]
 ): Promise<ScanResult> {
   const result: ScanResult = {
     serverName: path.basename(path.dirname(configPath)),
@@ -59,6 +60,16 @@ export async function scanMcpServer(
   for (const [serverName, serverConfig] of Object.entries(
     mcpServers
   )) {
+    // Skip servers in the safe list
+    if (safeList && safeList.includes(serverName)) {
+      progressCallback({
+        type: 'server-skipped',
+        serverName,
+        reason: 'In safe list',
+      })
+      continue
+    }
+
     try {
       // Get tools from server
       const tools = await getTools(serverConfig, identifyAs)
@@ -208,7 +219,8 @@ export async function scanMcpServer(
         const crossOriginResult = detectCrossOriginViolations(
           tool.description,
           otherServerNames,
-          serverName
+          serverName,
+          safeList
         )
 
         if (crossOriginResult.detected) {
