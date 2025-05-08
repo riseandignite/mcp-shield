@@ -21,6 +21,7 @@ export async function scanMcpServer(
   configPath: string,
   progressCallback: ScanProgressCallback,
   claudeApiKey?: string,
+  useBedrock?: boolean,
   identifyAs?: string,
   safeList?: string[]
 ): Promise<ScanResult> {
@@ -164,7 +165,7 @@ export async function scanMcpServer(
           // Optionally use Claude for enhanced analysis
           let claudeAnalysis: ClaudeAnalysis | undefined
           if (
-            claudeApiKey &&
+            (claudeApiKey || useBedrock) &&
             (hasHiddenInstructions ||
               hasShadowing ||
               accessesSensitiveFiles) &&
@@ -172,7 +173,8 @@ export async function scanMcpServer(
           ) {
             claudeAnalysis = await analyzeWithClaude(
               tool.description,
-              claudeApiKey
+              claudeApiKey,
+              useBedrock
             )
           }
 
