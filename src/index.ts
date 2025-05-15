@@ -359,7 +359,6 @@ program
           }
         )
         console.log(banner)
-        console.log(`use bedrock: ${options.useBedrock}`)
 
         const paths = options.path
           ? [options.path]
