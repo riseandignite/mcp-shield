@@ -1,13 +1,15 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { AnthropicBedrock } from "@anthropic-ai/bedrock-sdk";
 
 export async function analyzeWithClaude(
   toolDescription: string,
-  apiKey: string
+  apiKey?: string,
+  useBedrock?: boolean,
 ): Promise<{
   analysis: string
   overallRisk: 'HIGH' | 'MEDIUM' | 'LOW' | null
 }> {
-  if (!apiKey) {
+  if (!apiKey && !useBedrock) {
     return {
       analysis: 'Claude analysis unavailable (no API key provided)',
       overallRisk: null,
@@ -41,11 +43,26 @@ Finally, provide an overall risk assessment (LOW, MEDIUM, HIGH) and a 1-2 senten
 Keep your response under 400 words.
 `
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-7-sonnet-20250219',
-      max_tokens: 1000,
-      messages: [{role: 'user', content: prompt}],
-    })
+    const maxTokens = 1000;
+    const messages: any = [{ role: "user", content: prompt }];
+
+    let response;
+
+    if(useBedrock) {
+      const client = new AnthropicBedrock();
+      response = await client.messages.create({
+        model: "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        messages,
+        max_tokens: maxTokens,
+      });
+    }
+    else {
+      response = await anthropic.messages.create({
+        model: "claude-3-7-sonnet-20250219",
+        max_tokens: maxTokens,
+        messages,
+      });
+    }
 
     const overallRisk = response.content[0].text.includes('HIGH')
       ? 'HIGH'

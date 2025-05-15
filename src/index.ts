@@ -38,6 +38,7 @@ const getRiskLevel = (severity: Severity, message?: string) => {
 async function scanWithTreeDisplay(
   configPath: string,
   claudeApiKey?: string,
+  useBedrock?: boolean,
   identifyAs?: string,
   safeList?: string[]
 ) {
@@ -167,6 +168,7 @@ async function scanWithTreeDisplay(
       configPath,
       progressCallback,
       claudeApiKey,
+      useBedrock,
       identifyAs,
       safeList
     )
@@ -320,6 +322,10 @@ program
     'Optional Anthropic Claude API key for enhanced analysis'
   )
   .option(
+    '--use-bedrock',
+    'Use Bedrock API for scanning (default: false)'
+  )
+  .option(
     '--identify-as <client-name>',
     'Identify as a different client name (e.g., claude-desktop) for testing'
   )
@@ -331,6 +337,7 @@ program
     async (options: {
       path: string
       claudeApiKey?: string
+      useBedrock?: boolean
       identifyAs?: string
       safeList?: string
     }) => {
@@ -377,6 +384,7 @@ program
             const results = await scanWithTreeDisplay(
               configPath,
               options.claudeApiKey,
+              options.useBedrock,
               options.identifyAs,
               options.safeList
                 ? options.safeList.split(',').map((s) => s.trim())

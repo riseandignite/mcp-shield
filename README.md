@@ -18,6 +18,11 @@ With Claude API key for enhanced analysis:
 npx mcp-shield --claude-api-key YOUR_API_KEY
 ```
 
+With Claude on AWS Bedrock:
+
+```bash
+npx mcp-shield --use-bedrock
+
 With a specific config file:
 
 ```bash
@@ -45,7 +50,8 @@ npx mcp-shield --safe-list "github,slack,whatsapp"
 **Options:**
 
 - `--path <path>`: Scan a specific path for MCP configuration files (`.mcp/*.json`, `claude_desktop_config.json`). If omitted, scans standard locations (`~/.config/.mcp`, `~/Library/Application Support/Claude`, `~/.continue`).
-- `--claude-api-key <key>`: (Optional) Provide an Anthropic Claude API key for enhanced vulnerability analysis using AI.
+- `--claude-api-key <key>`: (Optional) Provide an Anthropic Claude API key for enhanced vulnerability analysis using generative AI.
+- `--use-bedrock` (Optional) Use Anthropic Claude on AWS Bedrock for enhanced vulnerability analysis using generative AI.
 - `--identify-as <client-name>`: (Optional) Identify as a different client name (e.g., `claude-desktop`) when connecting to servers. Useful for testing if servers behave differently based on the client ID (potential bait-and-switch).
 - `--safe-list <servers>`: (Optional) Comma-separated list of server names to exclude from scanning. These servers will be skipped and also excluded from cross-origin violation detection.
 - `-h, --help`: Display help information.
